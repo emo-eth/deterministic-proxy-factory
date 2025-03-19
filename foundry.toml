@@ -1,0 +1,23 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["dependencies"]
+# better deterministic deploys
+bytecode_hash = "none"
+remappings = ["forge-std/=dependencies/forge-std-1.9.6/src/"]
+optimizer_runs = 9999999
+
+[fmt]
+line_length = 100
+single_line_statement_blocks = "multi"
+sort_imports = true
+contract_new_lines = true
+bracket_spacing = true
+number_underscore = "thousands"
+wrap_comments = true
+multline_func_header = "all"
+
+[dependencies]
+forge-std = "1.9.6"
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

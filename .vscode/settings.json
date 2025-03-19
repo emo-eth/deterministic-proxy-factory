@@ -1,0 +1,5 @@
+{
+    "solidity.formatter": "forge",
+    "solidity-va.codelens.unittestStub.enable": false,
+    "solidity-va.codelens.funcSigs.enable": false
+}

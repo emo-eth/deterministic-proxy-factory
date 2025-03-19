@@ -1,0 +1,16 @@
+---
+description: Solidity test files
+globs: *.t.sol
+alwaysApply: false
+---
+# Solidity Tests
+- Test names should follow the pattern `test_functionName{,_fail_MySpecificError}`
+- Never use `vm.expectRevert()` without any args; always expect specific reverts using `File.SpecificError.selector` (abi-encoding args as necessary). Use `abi.encodeCall()` 
+- Always test events using `expectEmit`
+- Use `mockCall` sparingly
+- When testing functions that take relatively simple user-input, fuzz the inputs by giving the test function arguments. use `vm.bound` to restrict inputs as necessary.
+- Import `console2` from `forge-std/Test.sol` when logging is necessary or requested.
+- When accessing Forge Cheatcode structs, `import { VmSafe } from "forge-std/Vm.sol"` and access with `Vm\{,Safe\}.StructName`
+- Use `makeAddr`, `makeAccount`, or `makeWallet` when creating test addresses/accounts. These methods take a string argument.
+- When testing functions in libraries that might revert, ALWAYS wrap the library call in an external call within the test contract and call it with `this.myHelper(...)`. Otherwise, the test will fail, because the revert needs to happen at a lower depth than the `vm.expectRevert` call. 
+- When using EIP-7201 Namespaced Storage Layouts, use `$` as the storage variable, e.g., `MyStorage storage $ = MyStorageLib.getStorage()`.

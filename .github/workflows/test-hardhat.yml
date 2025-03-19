@@ -1,0 +1,43 @@
+name: Hardhat Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  hardhat-tests:
+    name: Hardhat project
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for package.json
+        id: check_files
+        run: |
+          if [ ! -f "package.json" ]; then
+            echo "skip_tests=true" >> $GITHUB_OUTPUT
+            echo "No package.json found, skipping Hardhat tests"
+            exit 0
+          fi
+          echo "skip_tests=false" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        if: steps.check_files.outputs.skip_tests != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.check_files.outputs.skip_tests != 'true'
+        run: npm ci
+
+      - name: Run Hardhat tests
+        if: steps.check_files.outputs.skip_tests != 'true'
+        run: npx hardhat test 
