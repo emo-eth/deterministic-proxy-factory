@@ -1,4 +1,11 @@
 [[dependencies]]
+name = "create2-helpers"
+version = "0.3.2"
+url = "https://soldeer-revisions.s3.amazonaws.com/create2-helpers/0_3_2_08-12-2024_21:22:20_create2-helpers.zip"
+checksum = "4951b502066ed86f75682fc0eb07df336bbc4044e307b66dfb8e06eb4de33b11"
+integrity = "e033f7b90a6d7877c6c51f3d1ca1a723392d1d96e9fb41fe908feebdb4c7adb5"
+
+[[dependencies]]
 name = "forge-std"
 version = "1.9.6"
 url = "https://soldeer-revisions.s3.amazonaws.com/forge-std/1_9_6_01-02-2025_20:49:10_forge-std-1.9.zip"

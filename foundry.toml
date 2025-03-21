@@ -7,6 +7,8 @@ bytecode_hash = "none"
 remappings = [
     "forge-std/=dependencies/forge-std-1.9.6/src/",
     "solady/=dependencies/solady-0.1.12/src/",
+    "create2-helpers/=dependencies/create2-helpers-0.3.2/src/",
+    "create2-helpers-script/=dependencies/create2-helpers-0.3.2/script/",
 ]
 optimizer_runs = 9999999
 via_ir = true
@@ -24,5 +26,6 @@ multline_func_header = "all"
 [dependencies]
 forge-std = "1.9.6"
 solady = "0.1.12"
+create2-helpers = "0.3.2"
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
