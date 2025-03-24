@@ -3,6 +3,12 @@ pragma solidity ^0.8.20;
 
 import { LibClone } from "solady/utils/LibClone.sol";
 
+/**
+ * @title  ProxyFactory
+ * @author emo.eth
+ * @notice A factory for deploying ERC1967 proxies and beacon proxies to deterministic addresses.
+ *         Salt must encode the caller's address in the top 160 bits.
+ */
 contract ProxyFactory {
 
     error InvalidDeployer();
@@ -52,10 +58,20 @@ contract ProxyFactory {
         return proxy;
     }
 
+    /**
+     * @notice Returns the initcode hash for a deterministic ERC1967 proxy with a given initial
+     * implementation.
+     * @param _implementation The implementation contract to proxy.
+     */
     function getInitcodeHashForProxy(address _implementation) public pure returns (bytes32) {
         return LibClone.initCodeHashERC1967(_implementation);
     }
 
+    /**
+     * @notice Returns the initcode hash for a deterministic ERC1967 beacon proxy with a given
+     *         immutable beacon.
+     * @param _beacon The beacon contract to use for the deployment.
+     */
     function getInitcodeHashForBeaconProxy(address _beacon) public pure returns (bytes32) {
         return LibClone.initCodeHashERC1967BeaconProxy(_beacon);
     }

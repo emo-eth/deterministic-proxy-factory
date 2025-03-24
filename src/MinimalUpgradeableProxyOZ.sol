@@ -7,6 +7,13 @@ import { Initializable } from "@openzeppelin-contracts-upgradeable/proxy/utils/I
 import { UUPSUpgradeable } from
     "@openzeppelin-contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
+/**
+ * @title  MinimalUpgradeableProxyOZ
+ * @author emo.eth
+ * @notice A minimal upgradeable proxy implementation using OpenZeppelin upgradeable contracts.
+ *         Use this if your final implementation uses OpenZeppelin's OwnableUpgradeable
+ *         implementation.
+ */
 contract MinimalUpgradeableProxyOZ is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
     constructor() {
