@@ -8,7 +8,7 @@ import { UUPSUpgradeable } from "solady/utils/UUPSUpgradeable.sol";
 contract MinimalUpgradeableProxySolady is Initializable, Ownable, UUPSUpgradeable {
 
     constructor() {
-        initialize(address(0));
+        _disableInitializers();
     }
 
     function initialize(address initialOwner) public initializer {
