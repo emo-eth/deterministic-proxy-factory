@@ -3,6 +3,15 @@ pragma solidity ^0.8.20;
 
 import { BaseCreate2Script } from "create2-helpers/BaseCreate2Script.sol";
 import { Script, console2 } from "forge-std/Script.sol";
+import { console } from "forge-std/console.sol";
+import {
+    MINIMAL_PROXY_OZ_ADDRESS,
+    MINIMAL_PROXY_OZ_SALT,
+    MINIMAL_PROXY_SOLADY_ADDRESS,
+    MINIMAL_PROXY_SOLADY_SALT,
+    PROXY_FACTORY_ADDRESS,
+    PROXY_FACTORY_SALT
+} from "src/Constants.sol";
 import { MinimalUpgradeableProxyOZ } from "src/MinimalUpgradeableProxyOZ.sol";
 import { MinimalUpgradeableProxySolady } from "src/MinimalUpgradeableProxySolady.sol";
 import { ProxyFactory } from "src/ProxyFactory.sol";
@@ -10,6 +19,17 @@ import { ProxyFactory } from "src/ProxyFactory.sol";
 contract Deploy is BaseCreate2Script {
 
     function run() public {
+        console.log("ProxyFactory initcode hash:");
+        console.logBytes32(keccak256(abi.encodePacked(type(ProxyFactory).creationCode)));
+        console.log("MinimalUpgradeableProxySolady initcode hash:");
+        console.logBytes32(
+            keccak256(abi.encodePacked(type(MinimalUpgradeableProxySolady).creationCode))
+        );
+        console.log("MinimalUpgradeableProxyOZ initcode hash:");
+        console.logBytes32(
+            keccak256(abi.encodePacked(type(MinimalUpgradeableProxyOZ).creationCode))
+        );
+
         string[] memory networks = vm.envString("NETWORKS", ",");
         string[] memory rpcUrls = new string[](networks.length);
         for (uint256 i = 0; i < networks.length; i++) {
@@ -19,28 +39,23 @@ contract Deploy is BaseCreate2Script {
     }
 
     function _run() public {
-        bytes32 salt = 0x0000000000000000000000000000000000000000d909d4576cd40400c2430b00;
-        address expectedResult = 0x0000000000Db69BB2e1FdE2720A300e5608Bbc05;
-        address addr = _create2IfNotDeployed(deployer, salt, type(ProxyFactory).creationCode);
-        require(addr == expectedResult, "Deployed ProxyFactory to wrong address");
+        address proxyFactoryAddr =
+            _create2IfNotDeployed(deployer, PROXY_FACTORY_SALT, type(ProxyFactory).creationCode);
+        require(proxyFactoryAddr == PROXY_FACTORY_ADDRESS, "Deployed ProxyFactory to wrong address");
 
-        bytes32 minimalSalt = 0x00000000000000000000000000000000000000006be6053f98130d009aa10100;
-        address minimalExpectedResult = 0x0000000000354D21D30F6CfECDF569b9fd796ADa;
-        address minimalAddr = _create2IfNotDeployed(
-            deployer, minimalSalt, type(MinimalUpgradeableProxySolady).creationCode
+        address minimalProxySoladyAddr = _create2IfNotDeployed(
+            deployer, MINIMAL_PROXY_SOLADY_SALT, type(MinimalUpgradeableProxySolady).creationCode
         );
         require(
-            minimalAddr == minimalExpectedResult,
+            minimalProxySoladyAddr == MINIMAL_PROXY_SOLADY_ADDRESS,
             "Deployed MinimalUpgradeableProxySolady to wrong address"
         );
 
-        bytes32 minimalSaltOz = 0x000000000000000000000000000000000000000014142afe4ab30900084f1200;
-        address minimalExpectedResultOz = 0x0000000000c110c7599c63EAE0C95e17b41CBb9B;
-        address minimalAddrOz = _create2IfNotDeployed(
-            deployer, minimalSaltOz, type(MinimalUpgradeableProxyOZ).creationCode
+        address minimalProxyOZAddr = _create2IfNotDeployed(
+            deployer, MINIMAL_PROXY_OZ_SALT, type(MinimalUpgradeableProxyOZ).creationCode
         );
         require(
-            minimalAddrOz == minimalExpectedResultOz,
+            minimalProxyOZAddr == MINIMAL_PROXY_OZ_ADDRESS,
             "Deployed MinimalUpgradeableProxyOZ to wrong address"
         );
     }

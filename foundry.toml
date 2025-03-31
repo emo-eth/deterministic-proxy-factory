@@ -15,6 +15,10 @@ remappings = [
 optimizer_runs = 9999999
 via_ir = true
 
+[rpc_endpoints]
+mainnet = "${ETHEREUM_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+
 [fmt]
 line_length = 100
 single_line_statement_blocks = "multi"

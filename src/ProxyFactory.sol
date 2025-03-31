@@ -6,7 +6,8 @@ import { LibClone } from "solady/utils/LibClone.sol";
 /**
  * @title  ProxyFactory
  * @author emo.eth
- * @notice A factory for deploying ERC1967 proxies and beacon proxies to deterministic addresses.
+ * @notice A factory for deploying ERC1967 proxies, beacon proxies, and clones with immutable args
+ *         to deterministic addresses.
  *         Salt must encode the caller's address in the top 160 bits.
  */
 contract ProxyFactory {
@@ -30,6 +31,31 @@ contract ProxyFactory {
         _validateSalt(salt);
         address proxy =
             LibClone.deployDeterministicERC1967(msg.value, address(_implementation), salt);
+        if (callData.length > 0) {
+            (bool success,) = proxy.call(callData);
+            require(success, ProxyCallFailed());
+        }
+        return proxy;
+    }
+
+    /**
+     * @notice Clones a deterministic clone of `implementation` with immutable arguments encoded in
+     * `immutableArgs` and `salt`.
+     * @param implementation The implementation contract to clone.
+     * @param salt The salt to use for the deployment. The caller's address must be encoded into the
+     * top 160 bits of the salt.
+     * @param callData The data to call on the proxy.
+     * @param immutableArgs The immutable arguments to encode into the clone.
+     */
+    function clone(
+        address implementation,
+        bytes32 salt,
+        bytes calldata callData,
+        bytes calldata immutableArgs
+    ) public payable returns (address) {
+        _validateSalt(salt);
+        address proxy;
+        proxy = LibClone.cloneDeterministic(msg.value, implementation, immutableArgs, salt);
         if (callData.length > 0) {
             (bool success,) = proxy.call(callData);
             require(success, ProxyCallFailed());
@@ -74,6 +100,20 @@ contract ProxyFactory {
      */
     function getInitcodeHashForBeaconProxy(address _beacon) public pure returns (bytes32) {
         return LibClone.initCodeHashERC1967BeaconProxy(_beacon);
+    }
+
+    /**
+     * @notice Returns the initcode hash for a deterministic clone of `implementation` with
+     * immutable arguments encoded in `immutableArgs`.
+     * @param implementation The implementation contract to clone.
+     * @param immutableArgs The immutable arguments to encode into the clone.
+     */
+    function getInitcodeHashForClone(address implementation, bytes calldata immutableArgs)
+        public
+        pure
+        returns (bytes32)
+    {
+        return LibClone.initCodeHash(implementation, immutableArgs);
     }
 
     /**
