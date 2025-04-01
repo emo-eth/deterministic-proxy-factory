@@ -6,31 +6,52 @@ import { LibClone } from "solady/utils/LibClone.sol";
 /**
  * @title  ProxyFactory
  * @author emo.eth
- * @notice A factory for deploying ERC1967 proxies, beacon proxies, and clones with immutable args
- *         to deterministic addresses.
- *         Salt must encode the caller's address in the top 160 bits.
+ * @notice A factory for deploying ERC1967 proxies, beacon proxies, and clones with
+ *         deterministic addresses. Each deployment method supports both standard proxies
+ *         and proxies with immutable args. Salt must encode the caller's address in the top
+ *         160 bits.
  */
 contract ProxyFactory {
 
+    /// @notice Reverts if the caller is not encoded into the top 160 bits of the salt.
     error InvalidDeployer();
+    /// @notice Reverts if the proxy deployment fails.
     error ProxyDeploymentFailed();
+    /// @notice Reverts if the call to the proxy after deployment fails.
     error ProxyCallFailed();
 
     /**
-     * @notice Deploys a deterministic ERC1967 proxy with a given salt.
-     * @param _implementation The implementation contract to proxy.
+     * @notice Deploys a deterministic ERC1967 proxy, optionally with immutable args.
+     * @param implementation The implementation contract to proxy.
      * @param salt The salt to use for the deployment. The caller's address must be encoded into the
      * top 160 bits of the salt.
-     * @param callData The data to call on the proxy.
+     * @param callData The data to call on the proxy after deployment.
+     * @param immutableArgs Optional immutable arguments to encode into the proxy's bytecode. If
+     * provided, they are appended as calldata to every call to the proxy implementation.
+     * @return The address of the deployed proxy.
      */
-    function deploy(address _implementation, bytes32 salt, bytes calldata callData)
-        public
-        payable
-        returns (address)
-    {
+    function deploy(
+        address implementation,
+        bytes32 salt,
+        bytes calldata callData,
+        bytes calldata immutableArgs
+    ) public payable returns (address) {
         _validateSalt(salt);
-        address proxy =
-            LibClone.deployDeterministicERC1967(msg.value, address(_implementation), salt);
+        address proxy;
+        if (immutableArgs.length > 0) {
+            proxy = LibClone.deployDeterministicERC1967({
+                value: msg.value,
+                implementation: implementation,
+                args: immutableArgs,
+                salt: salt
+            });
+        } else {
+            proxy = LibClone.deployDeterministicERC1967({
+                value: msg.value,
+                implementation: implementation,
+                salt: salt
+            });
+        }
         if (callData.length > 0) {
             (bool success,) = proxy.call(callData);
             require(success, ProxyCallFailed());
@@ -39,13 +60,15 @@ contract ProxyFactory {
     }
 
     /**
-     * @notice Clones a deterministic clone of `implementation` with immutable arguments encoded in
-     * `immutableArgs` and `salt`.
+     * @notice Deploys a deterministic clone (ERC-1167 minimal proxy), optionally with immutable
+     * args.
      * @param implementation The implementation contract to clone.
      * @param salt The salt to use for the deployment. The caller's address must be encoded into the
      * top 160 bits of the salt.
-     * @param callData The data to call on the proxy.
-     * @param immutableArgs The immutable arguments to encode into the clone.
+     * @param callData The data to call on the clone after deployment.
+     * @param immutableArgs Optional immutable arguments to encode into the clone's bytecode. If
+     * provided, they are appended as calldata to every call to the clone implementation.
+     * @return The address of the deployed clone.
      */
     function clone(
         address implementation,
@@ -55,7 +78,20 @@ contract ProxyFactory {
     ) public payable returns (address) {
         _validateSalt(salt);
         address proxy;
-        proxy = LibClone.cloneDeterministic(msg.value, implementation, immutableArgs, salt);
+        if (immutableArgs.length > 0) {
+            proxy = LibClone.cloneDeterministic({
+                value: msg.value,
+                implementation: implementation,
+                args: immutableArgs,
+                salt: salt
+            });
+        } else {
+            proxy = LibClone.cloneDeterministic({
+                value: msg.value,
+                implementation: implementation,
+                salt: salt
+            });
+        }
         if (callData.length > 0) {
             (bool success,) = proxy.call(callData);
             require(success, ProxyCallFailed());
@@ -64,19 +100,33 @@ contract ProxyFactory {
     }
 
     /**
-     * @notice Deploys a deterministic ERC1967 beacon proxy with a given salt.
-     * @param _beacon The beacon contract to use for the deployment.
+     * @notice Deploys a deterministic ERC1967 beacon proxy, optionally with immutable args.
+     * @param beacon The beacon contract to use for the deployment.
      * @param salt The salt to use for the deployment. The caller's address must be encoded into the
      * top 160 bits of the salt.
-     * @param callData The data to call on the proxy.
+     * @param callData The data to call on the proxy after deployment.
+     * @param immutableArgs Optional immutable arguments to encode into the proxy's bytecode. If
+     * provided, they are appended as calldata to every call to the proxy implementation.
+     * @return The address of the deployed proxy.
      */
-    function deployBeaconProxy(address _beacon, bytes32 salt, bytes calldata callData)
-        public
-        payable
-        returns (address)
-    {
+    function deployBeaconProxy(
+        address beacon,
+        bytes32 salt,
+        bytes calldata callData,
+        bytes calldata immutableArgs
+    ) public payable returns (address) {
         _validateSalt(salt);
-        address proxy = LibClone.deployDeterministicERC1967BeaconProxy(msg.value, _beacon, salt);
+        address proxy;
+        if (immutableArgs.length > 0) {
+            proxy = LibClone.deployDeterministicERC1967BeaconProxy({
+                value: msg.value,
+                beacon: beacon,
+                args: immutableArgs,
+                salt: salt
+            });
+        } else {
+            proxy = LibClone.deployDeterministicERC1967BeaconProxy(msg.value, beacon, salt);
+        }
         if (callData.length > 0) {
             (bool success,) = proxy.call(callData);
             require(success, ProxyCallFailed());
@@ -85,39 +135,60 @@ contract ProxyFactory {
     }
 
     /**
-     * @notice Returns the initcode hash for a deterministic ERC1967 proxy with a given initial
-     * implementation.
+     * @notice Returns the initcode hash for a deterministic ERC1967 proxy, optionally with
+     * immutable args.
      * @param _implementation The implementation contract to proxy.
+     * @param immutableArgs Optional immutable arguments to encode into the proxy's bytecode.
+     * @return The initcode hash of the proxy.
      */
-    function getInitcodeHashForProxy(address _implementation) public pure returns (bytes32) {
+    function getInitcodeHashForProxy(address _implementation, bytes calldata immutableArgs)
+        public
+        pure
+        returns (bytes32)
+    {
+        if (immutableArgs.length > 0) {
+            return LibClone.initCodeHashERC1967(_implementation, immutableArgs);
+        }
         return LibClone.initCodeHashERC1967(_implementation);
     }
 
     /**
-     * @notice Returns the initcode hash for a deterministic ERC1967 beacon proxy with a given
-     *         immutable beacon.
+     * @notice Returns the initcode hash for a deterministic ERC1967 beacon proxy, optionally with
+     * immutable args.
      * @param _beacon The beacon contract to use for the deployment.
+     * @param immutableArgs Optional immutable arguments to encode into the proxy's bytecode.
+     * @return The initcode hash of the proxy.
      */
-    function getInitcodeHashForBeaconProxy(address _beacon) public pure returns (bytes32) {
+    function getInitcodeHashForBeaconProxy(address _beacon, bytes calldata immutableArgs)
+        public
+        pure
+        returns (bytes32)
+    {
+        if (immutableArgs.length > 0) {
+            return LibClone.initCodeHashERC1967BeaconProxy(_beacon, immutableArgs);
+        }
         return LibClone.initCodeHashERC1967BeaconProxy(_beacon);
     }
 
     /**
-     * @notice Returns the initcode hash for a deterministic clone of `implementation` with
-     * immutable arguments encoded in `immutableArgs`.
+     * @notice Returns the initcode hash for a deterministic minimal proxy (ERC-1167), optionally
+     * with immutable args.
      * @param implementation The implementation contract to clone.
-     * @param immutableArgs The immutable arguments to encode into the clone.
+     * @param immutableArgs Optional immutable arguments to encode into the proxy's bytecode.
+     * @return The initcode hash of the minimal proxy.
      */
     function getInitcodeHashForClone(address implementation, bytes calldata immutableArgs)
         public
         pure
         returns (bytes32)
     {
-        return LibClone.initCodeHash(implementation, immutableArgs);
+        if (immutableArgs.length > 0) {
+            return LibClone.initCodeHash(implementation, immutableArgs);
+        }
+        return LibClone.initCodeHash(implementation);
     }
 
     /**
-     * @notice Validates that the caller's address is encoded into the top 160 bits of the salt
      * @param salt The salt to validate.
      */
     function _validateSalt(bytes32 salt) internal view {
