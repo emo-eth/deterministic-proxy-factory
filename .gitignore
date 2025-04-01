@@ -21,3 +21,4 @@ dependencies
 lcov-html
 lcov.info
 .DS_Store
+html

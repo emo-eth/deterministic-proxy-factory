@@ -8,8 +8,10 @@ import { LibClone } from "solady/utils/LibClone.sol";
  * @author emo.eth
  * @notice A factory for deploying ERC1967 proxies, beacon proxies, and clones with
  *         deterministic addresses. Each deployment method supports both standard proxies
- *         and proxies with immutable args. Salt must encode the caller's address in the top
- *         160 bits.
+ *         and proxies with immutable args. For security, deployment is permissioned via
+ *         the deployer's address being encoded in the top 160 bits of the salt, while
+ *         still maintaining deterministic addresses across chains. Uses Solady's LibClone
+ *         for optimized proxy implementations.
  */
 contract ProxyFactory {
 
@@ -27,8 +29,11 @@ contract ProxyFactory {
      * top 160 bits of the salt.
      * @param callData The data to call on the proxy after deployment.
      * @param immutableArgs Optional immutable arguments to encode into the proxy's bytecode. If
-     * provided, they are appended as calldata to every call to the proxy implementation.
+     * provided, they are appended to the proxy's bytecode, but *not* appended as calldata to every
+     * call to the proxy implementation. These args can be read using Solady's LibClone library.
      * @return The address of the deployed proxy.
+     * @dev Immutable args are best used for values that never change and are frequently accessed,
+     * since reading from bytecode is cheaper than storage.
      */
     function deploy(
         address implementation,
@@ -67,8 +72,11 @@ contract ProxyFactory {
      * top 160 bits of the salt.
      * @param callData The data to call on the clone after deployment.
      * @param immutableArgs Optional immutable arguments to encode into the clone's bytecode. If
-     * provided, they are appended as calldata to every call to the clone implementation.
+     * provided, they are appended to the clone's bytecode, but *not* appended as calldata to every
+     * call to the clone implementation. These args can be read using Solady's LibClone library.
      * @return The address of the deployed clone.
+     * @dev Immutable args are best used for values that never change and are frequently accessed,
+     * since reading from bytecode is cheaper than storage.
      */
     function clone(
         address implementation,
@@ -106,8 +114,11 @@ contract ProxyFactory {
      * top 160 bits of the salt.
      * @param callData The data to call on the proxy after deployment.
      * @param immutableArgs Optional immutable arguments to encode into the proxy's bytecode. If
-     * provided, they are appended as calldata to every call to the proxy implementation.
+     * provided, they are appended to the proxy's bytecode, but *not* appended as calldata to every
+     * call to the proxy implementation. These args can be read using Solady's LibClone library.
      * @return The address of the deployed proxy.
+     * @dev Immutable args are best used for values that never change and are frequently accessed,
+     * since reading from bytecode is cheaper than storage.
      */
     function deployBeaconProxy(
         address beacon,
@@ -189,7 +200,11 @@ contract ProxyFactory {
     }
 
     /**
-     * @param salt The salt to validate.
+     * @notice Validates that the deployer encoded in the salt matches msg.sender
+     * @param salt The salt to validate. The deployer's address must be encoded in the top 160 bits.
+     * @dev This ensures that only the address encoded in the salt can deploy to the deterministic
+     * address derived from that salt, while still maintaining deterministic addresses across
+     * chains.
      */
     function _validateSalt(bytes32 salt) internal view {
         address deployer = address(uint160(uint256(salt) >> 96));
