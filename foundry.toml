@@ -14,6 +14,7 @@ remappings = [
 ]
 optimizer_runs = 9999999
 via_ir = true
+solc_version = "0.8.29"
 
 [rpc_endpoints]
 mainnet = "${ETHEREUM_RPC_URL}"

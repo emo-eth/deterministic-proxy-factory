@@ -8,7 +8,7 @@ The factory and minimal proxy implementations are deployed at the following addr
 
 ```solidity
 // Proxy Factory
-address constant PROXY_FACTORY_ADDRESS = 0x0000000000734F780F5B35C6C72500f4609feC1e;
+address constant PROXY_FACTORY_ADDRESS = 0x000000000028301FcDF54db25F5D5C586378D100;
 
 // Minimal Proxy Implementations
 address constant MINIMAL_PROXY_SOLADY_ADDRESS = 0x0000000000354D21D30F6CfECDF569b9fd796ADa;

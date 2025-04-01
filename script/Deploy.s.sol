@@ -30,7 +30,7 @@ contract Deploy is BaseCreate2Script {
             keccak256(abi.encodePacked(type(MinimalUpgradeableProxyOZ).creationCode))
         );
 
-        string[] memory networks = vm.envString("NETWORKS", ",");
+        string[] memory networks = vm.envOr("NETWORKS", ",", new string[](0));
         string[] memory rpcUrls = new string[](networks.length);
         for (uint256 i = 0; i < networks.length; i++) {
             rpcUrls[i] = getChain(networks[i]).rpcUrl;
