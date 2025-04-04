@@ -9,7 +9,6 @@ This is a simple deterministic proxy factory that allows you to deploy determini
 -   Permission control via deployer address encoded in salt
 -   Consistent addresses across all EVM chains
 
-
 ## Rationalization
 
 Permissionless, non-upgradeable protocols like [Seaport](https://etherscan.io/address/0x0000000000000068f116a894984e2db1123eb395#code) or the [Delegate Registry](https://etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493) are often deployed to consistent, deterministic addresses accross chains using [Nick Johnson's Keyless Create Factory](https://etherscan.io/address/0x4e59b44847b379578588920ca78fbf26c0b4956c#code) or 0age's [ImmutableCreate2Factory](https://etherscan.io/address/0x0000000000ffe8b47b3e2130213b802212439497#code).
@@ -37,7 +36,7 @@ address constant MINIMAL_PROXY_OZ_ADDRESS = 0x0000000000c110c7599c63EAE0C95e17b4
 
 ```solidity
 // reference the deployed proxy factory
-ProxyFactory factory = ProxyFactory(0x000000000028301FcDF54db25F5D5C586378D100);
+ProxyFactory factory = DeterministicProxyFactory(0x000000000028301FcDF54db25F5D5C586378D100);
 // reference the minimal proxy implementation
 address implementation = 0x0000000000354D21D30F6CfECDF569b9fd796ADa; // Solady implementation
 
@@ -52,9 +51,6 @@ bytes32 sameSalt = PermissionedSalt.createPermissionedSalt(deployer, actualSalt)
 bytes memory initData = abi.encodeWithSignature("initialize(address)", msg.sender);
 // Deploy a proxy (with optional immutable args)
 bytes memory immutableArgs = ""; // If empty, deploys a normal proxy
-// To use immutable args, they will be appended to the proxy's bytecode
-// and can be read using assembly or libraries like Solady's LibClone
-// Example: bytes memory immutableArgs = abi.encode(uint256(123), address(0x123));
 address proxy = factory.deploy(implementation, salt, initData, immutableArgs);
 
 // Deploy a clone (ERC-1167 minimal proxy)
@@ -73,21 +69,27 @@ bytes32 beaconProxyInitcodeHash = factory.getInitcodeHashForBeaconProxy(beacon, 
 ## FAQ
 
 ### Why not use the keyless Create2 factory?
+
 It does not support permissioned deploys.
 
 ### Why not use the ImmutableCreate2Factory?
+
 It does not support initialization calls.
 
 ### Why not wrap a call to the ImmutableCreate2Factory in another contract that makes an initialization call?
+
 Solady's LibClone library has painstakingly optimized proxy/clone/beacon proxy bytecode, which gets loaded into memory as part of the deployment process. Rather than try to tweak the logic so it works with external calls, it's easier, safer, and more gas efficient to just have the factory deploy the proxies in addition to call their initialization methods. This approach saves gas by avoiding an extra external call and maintains the optimized bytecode patterns.
 
 ### When should I use immutable args vs initialization data?
+
 Immutable args are best used for values that:
+
 1. Never change throughout the contract's lifetime
 2. Are frequently accessed (since reading from bytecode is cheaper than storage)
 3. Are the same across all chains where the proxy is deployed
 
 Initialization data is better for:
+
 1. Values that might need to change (via upgrade)
 2. Chain-specific configuration
 3. Complex setup logic that needs to be executed

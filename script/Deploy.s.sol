@@ -12,15 +12,17 @@ import {
     PROXY_FACTORY_ADDRESS,
     PROXY_FACTORY_SALT
 } from "src/Constants.sol";
+import { DeterministicProxyFactory } from "src/DeterministicProxyFactory.sol";
 import { MinimalUpgradeableProxyOZ } from "src/MinimalUpgradeableProxyOZ.sol";
 import { MinimalUpgradeableProxySolady } from "src/MinimalUpgradeableProxySolady.sol";
-import { ProxyFactory } from "src/ProxyFactory.sol";
 
 contract Deploy is BaseCreate2Script {
 
     function run() public {
         console.log("ProxyFactory initcode hash:");
-        console.logBytes32(keccak256(abi.encodePacked(type(ProxyFactory).creationCode)));
+        console.logBytes32(
+            keccak256(abi.encodePacked(type(DeterministicProxyFactory).creationCode))
+        );
         console.log("MinimalUpgradeableProxySolady initcode hash:");
         console.logBytes32(
             keccak256(abi.encodePacked(type(MinimalUpgradeableProxySolady).creationCode))
@@ -39,9 +41,13 @@ contract Deploy is BaseCreate2Script {
     }
 
     function _run() public {
-        address proxyFactoryAddr =
-            _create2IfNotDeployed(deployer, PROXY_FACTORY_SALT, type(ProxyFactory).creationCode);
-        require(proxyFactoryAddr == PROXY_FACTORY_ADDRESS, "Deployed ProxyFactory to wrong address");
+        address proxyFactoryAddr = _create2IfNotDeployed(
+            deployer, PROXY_FACTORY_SALT, type(DeterministicProxyFactory).creationCode
+        );
+        require(
+            proxyFactoryAddr == PROXY_FACTORY_ADDRESS,
+            "Deployed DeterministicProxyFactory to wrong address"
+        );
 
         address minimalProxySoladyAddr = _create2IfNotDeployed(
             deployer, MINIMAL_PROXY_SOLADY_SALT, type(MinimalUpgradeableProxySolady).creationCode

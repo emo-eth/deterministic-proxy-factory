@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.4;
 
 import { LibClone } from "solady/utils/LibClone.sol";
 
 /**
- * @title  ProxyFactory
+ * @title  DeterministicProxyFactory
  * @author emo.eth
  * @notice A factory for deploying ERC1967 proxies, beacon proxies, and clones with
  *         deterministic addresses. Each deployment method supports both standard proxies
@@ -13,7 +13,7 @@ import { LibClone } from "solady/utils/LibClone.sol";
  *         still maintaining deterministic addresses across chains. Uses Solady's LibClone
  *         for optimized proxy implementations.
  */
-contract ProxyFactory {
+contract DeterministicProxyFactory {
 
     /// @notice Reverts if the caller is not encoded into the top 160 bits of the salt.
     error InvalidDeployer();
@@ -59,7 +59,9 @@ contract ProxyFactory {
         }
         if (callData.length > 0) {
             (bool success,) = proxy.call(callData);
-            require(success, ProxyCallFailed());
+            if (!success) {
+                revert ProxyCallFailed();
+            }
         }
         return proxy;
     }
@@ -102,7 +104,9 @@ contract ProxyFactory {
         }
         if (callData.length > 0) {
             (bool success,) = proxy.call(callData);
-            require(success, ProxyCallFailed());
+            if (!success) {
+                revert ProxyCallFailed();
+            }
         }
         return proxy;
     }
@@ -140,7 +144,9 @@ contract ProxyFactory {
         }
         if (callData.length > 0) {
             (bool success,) = proxy.call(callData);
-            require(success, ProxyCallFailed());
+            if (!success) {
+                revert ProxyCallFailed();
+            }
         }
         return proxy;
     }

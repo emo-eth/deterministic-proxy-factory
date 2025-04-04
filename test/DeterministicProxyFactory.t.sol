@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import { Test, console2 } from "forge-std/Test.sol";
 import { VmSafe } from "forge-std/Vm.sol";
 import { LibClone } from "solady/utils/LibClone.sol";
-import { ProxyFactory } from "src/ProxyFactory.sol";
+import { DeterministicProxyFactory } from "src/DeterministicProxyFactory.sol";
 
 // Simple implementation contract for testing
 contract MockImplementation {
@@ -78,9 +78,9 @@ contract MockClone {
 
 }
 
-contract ProxyFactoryTest is Test {
+contract DeterministicProxyFactoryTest is Test {
 
-    ProxyFactory factory;
+    DeterministicProxyFactory factory;
     MockImplementation implementation;
     MockBeacon beacon;
     MockClone clone;
@@ -89,7 +89,7 @@ contract ProxyFactoryTest is Test {
     address user;
 
     function setUp() public {
-        factory = new ProxyFactory();
+        factory = new DeterministicProxyFactory();
         implementation = new MockImplementation();
         address beaconImplementation = address(new MockBeaconImplementation());
         beacon = new MockBeacon(address(beaconImplementation));
@@ -176,7 +176,7 @@ contract ProxyFactoryTest is Test {
         bytes32 salt = _createSalt(deployer);
         bytes memory initData = abi.encodeCall(MockImplementation.initialize, (42));
 
-        vm.expectRevert(ProxyFactory.InvalidDeployer.selector);
+        vm.expectRevert(DeterministicProxyFactory.InvalidDeployer.selector);
         factory.deploy(address(implementation), salt, initData, "");
 
         vm.stopPrank();
@@ -190,7 +190,7 @@ contract ProxyFactoryTest is Test {
         // Create invalid calldata that will revert
         bytes memory invalidCallData = abi.encodeWithSignature("nonExistentFunction()");
 
-        vm.expectRevert(ProxyFactory.ProxyCallFailed.selector);
+        vm.expectRevert(DeterministicProxyFactory.ProxyCallFailed.selector);
         factory.deploy(address(implementation), salt, invalidCallData, "");
 
         vm.stopPrank();
@@ -268,7 +268,7 @@ contract ProxyFactoryTest is Test {
         bytes32 salt = _createSalt(deployer);
         bytes memory initData = abi.encodeCall(MockImplementation.initialize, (42));
 
-        vm.expectRevert(ProxyFactory.InvalidDeployer.selector);
+        vm.expectRevert(DeterministicProxyFactory.InvalidDeployer.selector);
         factory.deployBeaconProxy(address(beacon), salt, initData, "");
 
         vm.stopPrank();
@@ -282,7 +282,7 @@ contract ProxyFactoryTest is Test {
         // Create invalid calldata that will revert
         bytes memory invalidCallData = abi.encodeWithSignature("nonExistentFunction()");
 
-        vm.expectRevert(ProxyFactory.ProxyCallFailed.selector);
+        vm.expectRevert(DeterministicProxyFactory.ProxyCallFailed.selector);
         factory.deployBeaconProxy(address(beacon), salt, invalidCallData, "");
 
         vm.stopPrank();
@@ -310,7 +310,7 @@ contract ProxyFactoryTest is Test {
         vm.startPrank(wrongDeployer);
 
         // This should fail as the deployer addresses don't match
-        vm.expectRevert(ProxyFactory.InvalidDeployer.selector);
+        vm.expectRevert(DeterministicProxyFactory.InvalidDeployer.selector);
         factory.deploy(address(implementation), salt, "", "");
 
         vm.stopPrank();
@@ -485,7 +485,7 @@ contract ProxyFactoryTest is Test {
         bytes memory initData = abi.encodeCall(MockImplementation.initialize, (42));
         bytes memory immutableArgs = new bytes(0);
 
-        vm.expectRevert(ProxyFactory.InvalidDeployer.selector);
+        vm.expectRevert(DeterministicProxyFactory.InvalidDeployer.selector);
         factory.clone(address(implementation), salt, initData, immutableArgs);
 
         vm.stopPrank();
@@ -498,7 +498,7 @@ contract ProxyFactoryTest is Test {
         bytes memory invalidCallData = abi.encodeWithSignature("nonExistentFunction()");
         bytes memory immutableArgs = new bytes(0);
 
-        vm.expectRevert(ProxyFactory.ProxyCallFailed.selector);
+        vm.expectRevert(DeterministicProxyFactory.ProxyCallFailed.selector);
         factory.clone(address(implementation), salt, invalidCallData, immutableArgs);
 
         vm.stopPrank();
