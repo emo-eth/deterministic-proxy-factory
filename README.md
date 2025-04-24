@@ -68,17 +68,9 @@ bytes32 beaconProxyInitcodeHash = factory.getInitcodeHashForBeaconProxy(beacon, 
 
 ## FAQ
 
-### Why not use the keyless Create2 factory?
+### Has this been audited?
 
-It does not support permissioned deploys.
-
-### Why not use the ImmutableCreate2Factory?
-
-It does not support initialization calls.
-
-### Why not wrap a call to the ImmutableCreate2Factory in another contract that makes an initialization call?
-
-Solady's LibClone library has painstakingly optimized proxy/clone/beacon proxy bytecode, which gets loaded into memory as part of the deployment process. Rather than try to tweak the logic so it works with external calls, it's easier, safer, and more gas efficient to just have the factory deploy the proxies in addition to call their initialization methods. This approach saves gas by avoiding an extra external call and maintains the optimized bytecode patterns.
+Not yet :)
 
 ### When should I use immutable args vs initialization data?
 
@@ -94,6 +86,14 @@ Initialization data is better for:
 2. Chain-specific configuration
 3. Complex setup logic that needs to be executed
 
-### Has this been audited?
+### Why not use the keyless Create2 factory?
 
-Not yet :)
+It does not support permissioned deploys.
+
+### Why not use the ImmutableCreate2Factory?
+
+It does not support initialization calls.
+
+### Why not wrap a call to the ImmutableCreate2Factory in another contract that makes an initialization call?
+
+Solady's LibClone library has painstakingly optimized proxy/clone/beacon proxy bytecode, which gets loaded into memory as part of the deployment process. Rather than try to tweak the logic so it works with external calls, it's easier, safer, and more gas efficient to just have the factory deploy the proxies in addition to call their initialization methods. This approach saves gas by avoiding an extra external call and maintains the optimized bytecode patterns.
