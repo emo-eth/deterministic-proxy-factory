@@ -93,3 +93,7 @@ Initialization data is better for:
 1. Values that might need to change (via upgrade)
 2. Chain-specific configuration
 3. Complex setup logic that needs to be executed
+
+### Has this been audited?
+
+Not yet :)
