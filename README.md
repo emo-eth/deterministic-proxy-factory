@@ -17,7 +17,7 @@ Both factories use the [`CREATE2` opcode](https://www.evm.codes/?fork=cancun#f5)
 
 The `ProxyFactory` uses the `ImmutableCreate2Factory` strategy of encoding the deployer's address into the salt, which allows for permissioned deploys while still being deterministic. The `ProxyFactory` also accepts optional calldata for an initialization call, which is passed to the proxy after deployment to its deterministic address.
 
-Support for [ClonesWithImmutableArgs](https://github.com/wighawag/clones-with-immutable-args)-style "immutable arguments" is also included, but they are not forwarded to the implementation contract by default. Instead, they are appended to the bytecode of the proxy, but not as calldata to every call to the proxy implementation. See the [LibClone](https://github.com/vectorized/solady/blob/main/src/utils/LibClone.sol) library for more details.
+Support for [ClonesWithImmutableArgs](https://github.com/wighawag/clones-with-immutable-args)-style "immutable arguments" is also included, but they are not forwarded to the implementation contract by default. Instead, they are appended to the bytecode of the proxy, but not as calldata to every call to the proxy implementation. See OpenZeppelin's [Clones.sol](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/7b74442c5e87ea51dde41c7f18a209fa5154f1a4/contracts/proxy/Clones.sol#L229) and/or Solady's [LibClone.sol](https://github.com/Vectorized/solady/blob/99711d64e956f777983e08176764e5f77264a2a3/src/utils/LibClone.sol#L653) library for more details.
 
 ## Deployed Contracts
 
