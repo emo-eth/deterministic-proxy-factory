@@ -9,7 +9,6 @@ pragma solidity ^0.8.4;
 library PermissionedSalt {
 
     uint256 constant DEPLOYER_SHIFT = 96;
-    uint96 constant BYTES12_MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFF;
 
     /**
      * @notice Creates an PermissionedSalt from an address and a bytes12.
@@ -34,7 +33,7 @@ library PermissionedSalt {
      * masking by Solidity
      */
     function getSalt(bytes32 permissionedSalt) internal pure returns (uint96 _salt) {
-        return uint96(uint256(permissionedSalt) & BYTES12_MASK);
+        return uint96(uint256(permissionedSalt));
     }
 
 }

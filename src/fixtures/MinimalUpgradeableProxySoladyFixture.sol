@@ -5,6 +5,11 @@ import { MINIMAL_PROXY_SOLADY_ADDRESS, MINIMAL_PROXY_SOLADY_SALT } from "src/Con
 
 import { MinimalUpgradeableProxySolady } from "src/MinimalUpgradeableProxySolady.sol";
 
+/**
+ * @title MinimalUpgradeableProxySoladyFixture
+ * @notice A helper library for deploying the MinimalUpgradeableProxySolady in tests. Import and
+ * call in the setUp() function.
+ */
 library MinimalUpgradeableProxySoladyFixture {
 
     address constant CREATE2_FACTORY = 0x4e59b44847b379578588920cA78FbF26c0B4956C;

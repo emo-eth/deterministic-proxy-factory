@@ -4,6 +4,11 @@ pragma solidity ^0.8.4;
 import { MINIMAL_PROXY_OZ_ADDRESS, MINIMAL_PROXY_OZ_SALT } from "src/Constants.sol";
 import { MinimalUpgradeableProxyOZ } from "src/MinimalUpgradeableProxyOZ.sol";
 
+/**
+ * @title MinimalUpgradeableProxyOZFixture
+ * @notice A helper library for deploying the MinimalUpgradeableProxyOZ in tests. Import and call in
+ * the setUp() function.
+ */
 library MinimalUpgradeableProxyOZFixture {
 
     address constant CREATE2_FACTORY = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
