@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
-interface ProxyFactoryInterface {
+interface DeterministicProxyFactoryInterface {
 
     error InvalidDeployer();
     error ProxyCallFailed();

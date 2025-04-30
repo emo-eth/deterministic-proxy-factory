@@ -38,12 +38,4 @@ library MinimalUpgradeableProxyOZFixture {
         return resultAddress;
     }
 
-    function getAddress() internal pure returns (address) {
-        return address(MINIMAL_UPGRADEABLE_PROXY_OZ_IMPLEMENTATION);
-    }
-
-    function getType() internal pure returns (MinimalUpgradeableProxyOZ) {
-        return MINIMAL_UPGRADEABLE_PROXY_OZ_IMPLEMENTATION;
-    }
-
 }

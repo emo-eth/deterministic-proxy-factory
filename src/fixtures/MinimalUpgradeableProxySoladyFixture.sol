@@ -42,12 +42,4 @@ library MinimalUpgradeableProxySoladyFixture {
         return resultAddress;
     }
 
-    function getAddress() internal pure returns (address) {
-        return address(MINIMAL_UPGRADEABLE_PROXY_SOLADY_IMPLEMENTATION);
-    }
-
-    function getType() internal pure returns (MinimalUpgradeableProxySolady) {
-        return MINIMAL_UPGRADEABLE_PROXY_SOLADY_IMPLEMENTATION;
-    }
-
 }
