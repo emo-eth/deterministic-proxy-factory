@@ -37,11 +37,11 @@ address constant MINIMAL_PROXY_OZ_ADDRESS = 0x0000000000c110c7599c63EAE0C95e17b4
 Install with `forge soldeer install` or `forge install`
 
 ```
-forge soldeer install deterministic-proxy-factory~0.1.2
+forge soldeer install deterministic-proxy-factory~0.1.3
 
 # or
 
-forge install emo-eth/deterministic-proxy-factory@v0.1.2
+forge install emo-eth/deterministic-proxy-factory@v0.1.3
 ```
 
 ## Usage
