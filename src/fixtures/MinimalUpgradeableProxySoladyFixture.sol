@@ -20,7 +20,7 @@ library MinimalUpgradeableProxySoladyFixture {
         MINIMAL_UPGRADEABLE_PROXY_SOLADY_IMPLEMENTATION =
             MinimalUpgradeableProxySolady(MINIMAL_PROXY_SOLADY_ADDRESS);
 
-    function setUpMinimalUpgradeableProxySoladyFixture() public returns (address) {
+    function setUpMinimalUpgradeableProxySolady() internal returns (address) {
         if (address(MINIMAL_UPGRADEABLE_PROXY_SOLADY_IMPLEMENTATION).code.length > 0) {
             return MINIMAL_PROXY_SOLADY_ADDRESS;
         }
@@ -42,11 +42,11 @@ library MinimalUpgradeableProxySoladyFixture {
         return resultAddress;
     }
 
-    function getAddress() public pure returns (address) {
+    function getAddress() internal pure returns (address) {
         return address(MINIMAL_UPGRADEABLE_PROXY_SOLADY_IMPLEMENTATION);
     }
 
-    function getType() public pure returns (MinimalUpgradeableProxySolady) {
+    function getType() internal pure returns (MinimalUpgradeableProxySolady) {
         return MINIMAL_UPGRADEABLE_PROXY_SOLADY_IMPLEMENTATION;
     }
 

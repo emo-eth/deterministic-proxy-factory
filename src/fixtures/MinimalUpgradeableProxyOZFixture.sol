@@ -18,7 +18,7 @@ library MinimalUpgradeableProxyOZFixture {
     MinimalUpgradeableProxyOZ internal constant MINIMAL_UPGRADEABLE_PROXY_OZ_IMPLEMENTATION =
         MinimalUpgradeableProxyOZ(MINIMAL_PROXY_OZ_ADDRESS);
 
-    function setUpMinimalUpgradeableProxyOZFixture() public returns (address) {
+    function setUpMinimalUpgradeableProxyOZ() internal returns (address) {
         if (address(MINIMAL_UPGRADEABLE_PROXY_OZ_IMPLEMENTATION).code.length > 0) {
             return MINIMAL_PROXY_OZ_ADDRESS;
         }
@@ -38,11 +38,11 @@ library MinimalUpgradeableProxyOZFixture {
         return resultAddress;
     }
 
-    function getAddress() public pure returns (address) {
+    function getAddress() internal pure returns (address) {
         return address(MINIMAL_UPGRADEABLE_PROXY_OZ_IMPLEMENTATION);
     }
 
-    function getType() public pure returns (MinimalUpgradeableProxyOZ) {
+    function getType() internal pure returns (MinimalUpgradeableProxyOZ) {
         return MINIMAL_UPGRADEABLE_PROXY_OZ_IMPLEMENTATION;
     }
 

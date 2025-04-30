@@ -10,10 +10,23 @@ import { DeterministicProxyFactory } from "src/DeterministicProxyFactory.sol";
 
 import { MinimalUpgradeableProxyOZ } from "src/MinimalUpgradeableProxyOZ.sol";
 import { MinimalUpgradeableProxySolady } from "src/MinimalUpgradeableProxySolady.sol";
+
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import { PermissionedSalt } from "src/PermissionedSalt.sol";
 import { DeterministicProxyFactoryFixture } from "src/fixtures/DeterministicProxyFactoryFixture.sol";
 import { MinimalUpgradeableProxyOZFixture } from "src/fixtures/MinimalUpgradeableProxyOZFixture.sol";
 import { MinimalUpgradeableProxySoladyFixture } from
     "src/fixtures/MinimalUpgradeableProxySoladyFixture.sol";
+
+contract UpgradeTest is UUPSUpgradeable {
+
+    function isUpgraded() public pure returns (bool) {
+        return true;
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override { }
+
+}
 
 contract FixturesTest is Test {
 
@@ -29,7 +42,7 @@ contract FixturesTest is Test {
     function testMinimalUpgradeableProxySoladyFixture() public {
         // Test deployment
         address deployedAddress =
-            MinimalUpgradeableProxySoladyFixture.setUpMinimalUpgradeableProxySoladyFixture();
+            MinimalUpgradeableProxySoladyFixture.setUpMinimalUpgradeableProxySolady();
 
         // Verify deployment address matches expected and has code
         assertEq(deployedAddress, MINIMAL_PROXY_SOLADY_ADDRESS, "Deployment address mismatch");
@@ -38,12 +51,31 @@ contract FixturesTest is Test {
 
     function testMinimalUpgradeableProxyOZFixture() public {
         // Test deployment
-        address deployedAddress =
-            MinimalUpgradeableProxyOZFixture.setUpMinimalUpgradeableProxyOZFixture();
+        address deployedAddress = MinimalUpgradeableProxyOZFixture.setUpMinimalUpgradeableProxyOZ();
 
         // Verify deployment address matches expected and has code
         assertEq(deployedAddress, MINIMAL_PROXY_OZ_ADDRESS, "Deployment address mismatch");
         assertGt(deployedAddress.code.length, 0, "MinimalUpgradeableProxyOZ not deployed");
+    }
+
+    function testDeterministicProxyMethods() public {
+        address impl = address(new UpgradeTest());
+        address proxy = DeterministicProxyFactoryFixture.deterministicProxySolady({
+            initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(0)),
+            initialOwner: address(this),
+            implementation: impl,
+            callData: ""
+        });
+        assertEq(UpgradeTest(proxy).isUpgraded(), true);
+
+        // do same for oz
+        proxy = DeterministicProxyFactoryFixture.deterministicProxyOZ({
+            initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(0)),
+            initialOwner: address(this),
+            implementation: impl,
+            callData: ""
+        });
+        assertEq(UpgradeTest(proxy).isUpgraded(), true);
     }
 
 }

@@ -32,6 +32,18 @@ address constant MINIMAL_PROXY_SOLADY_ADDRESS = 0x0000000000354D21D30F6CfECDF569
 address constant MINIMAL_PROXY_OZ_ADDRESS = 0x0000000000c110c7599c63EAE0C95e17b41CBb9B;
 ```
 
+## Installing
+
+Install with `forge soldeer install` or `forge install`
+
+```
+forge soldeer install deterministic-proxy-factory~0.1.2
+
+# or
+
+forge install emo-eth/deterministic-proxy-factory@v0.1.2
+```
+
 ## Usage
 
 ```solidity
@@ -66,6 +78,78 @@ bytes32 cloneInitcodeHash = factory.getInitcodeHashForClone(implementation, immu
 bytes32 beaconProxyInitcodeHash = factory.getInitcodeHashForBeaconProxy(beacon, immutableArgs);
 ```
 
+## Testing with your project
+
+The library includes a set of fixtures for setting up the factory in your test environment.
+
+```solidity
+/// SPDX-License-Identifier: MIT
+
+import { MyContract } from "./MyContract.sol";
+import { PermissionedSalt } from "deterministic-proxy-factory/PermissionedSalt.sol";
+import {
+    DeterministicProxyFactory,
+    DeterministicProxyFactoryFixture
+} from "deterministic-proxy-factory/fixtures/DeterministicProxyFactoryFixture.sol";
+import {
+    MinimalUpgradeableProxyOZ,
+    MinimalUpgradeableProxyOZFixture
+} from "deterministic-proxy-factory/fixtures/MinimalUpgradeableProxyOZFixture.sol";
+import {
+    MinimalUpgradeableProxySolady,
+    MinimalUpgradeableProxySoladyFixture
+} from "deterministic-proxy-factory/fixtures/MinimalUpgradeableProxySoladyFixture.sol";
+import { Test } from "forge-std/Test.sol";
+
+contract MyContractTest is Test {
+
+    DeterministicProxyFactory factory;
+    MyContract myContract;
+
+    function setUp() public {
+        // Convenience methods to deploy the factory and minimal proxies to their appropriate
+        // addresses as part of setup
+        factory = DeterministicProxyFactory(
+            DeterministicProxyFactoryFixture.setUpDeterministicProxyFactory()
+        );
+        address minimalProxyOZ = MinimalUpgradeableProxyOZFixture.setUpMinimalUpgradeableProxyOZ();
+        address minimalProxySolady =
+            MinimalUpgradeableProxySoladyFixture.setUpMinimalUpgradeableProxySolady();
+
+        // if all you need is a UUPS proxy, you can use the deterministicProxy methods to deploy
+        // your contract in two steps
+        // (first deploy your implementation, then deploy + upgrade the proxy to your
+        // implementation)
+        MyContract myContractImplementation = new MyContract();
+        myContract = MyContract(
+            DeterministicProxyFactoryFixture.deterministicProxyOZ({
+                initialProxySalt: PermissionedSalt.createPermissionedSalt(
+                    address(this), uint96(vm.envOr("SALT", uint256(0)))
+                ),
+                initialOwner: address(this),
+                implementation: address(myContractImplementation),
+                callData: abi.encodeCall(MyContract.reinitialize, (address(this)))
+            })
+        );
+
+        // above, using solady
+        myContract = MyContract(
+            DeterministicProxyFactoryFixture.deterministicProxySolady({
+                initialProxySalt: PermissionedSalt.createPermissionedSalt(
+                    address(this), uint96(vm.envOr("SALT", uint256(0)))
+                ),
+                initialOwner: address(this),
+                implementation: address(myContractImplementation),
+                callData: abi.encodeCall(MyContract.reinitialize, (address(this)))
+            })
+        );
+    }
+
+    // write your tests here
+
+}
+```
+
 ## FAQ
 
 ### Has this been audited?
@@ -97,3 +181,7 @@ It does not support initialization calls.
 ### Why not wrap a call to the ImmutableCreate2Factory in another contract that makes an initialization call?
 
 Solady's LibClone library has painstakingly optimized proxy/clone/beacon proxy bytecode, which gets loaded into memory as part of the deployment process. Rather than try to tweak the logic so it works with external calls, it's easier, safer, and more gas efficient to just have the factory deploy the proxies in addition to call their initialization methods. This approach saves gas by avoiding an extra external call and maintains the optimized bytecode patterns.
+
+```
+
+```

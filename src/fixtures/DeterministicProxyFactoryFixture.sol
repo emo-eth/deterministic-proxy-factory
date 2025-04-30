@@ -1,8 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import { PROXY_FACTORY_ADDRESS, PROXY_FACTORY_SALT } from "src/Constants.sol";
+import {
+    MINIMAL_PROXY_OZ_ADDRESS,
+    MINIMAL_PROXY_SOLADY_ADDRESS,
+    PROXY_FACTORY_ADDRESS,
+    PROXY_FACTORY_SALT
+} from "src/Constants.sol";
 import { DeterministicProxyFactory } from "src/DeterministicProxyFactory.sol";
+import {
+    MinimalUpgradeableProxyOZ,
+    MinimalUpgradeableProxyOZFixture
+} from "src/fixtures/MinimalUpgradeableProxyOZFixture.sol";
+import {
+    MinimalUpgradeableProxySolady,
+    MinimalUpgradeableProxySoladyFixture
+} from "src/fixtures/MinimalUpgradeableProxySoladyFixture.sol";
 
 /**
  * @title DeterministicProxyFactoryFixture
@@ -17,7 +30,7 @@ library DeterministicProxyFactoryFixture {
     DeterministicProxyFactory internal constant DETERMINISTIC_PROXY_FACTORY =
         DeterministicProxyFactory(PROXY_FACTORY_ADDRESS);
 
-    function setUpDeterministicProxyFactory() public returns (address) {
+    function setUpDeterministicProxyFactory() internal returns (address) {
         if (address(DETERMINISTIC_PROXY_FACTORY).code.length > 0) {
             return PROXY_FACTORY_ADDRESS;
         }
@@ -34,6 +47,42 @@ library DeterministicProxyFactoryFixture {
             resultAddress == PROXY_FACTORY_ADDRESS, "DeterministicProxyFactory address mismatch"
         );
         return resultAddress;
+    }
+
+    function deterministicProxyOZ(
+        bytes32 initialProxySalt,
+        address initialOwner,
+        address implementation,
+        bytes memory callData
+    ) internal returns (address) {
+        setUpDeterministicProxyFactory();
+        MinimalUpgradeableProxyOZFixture.setUpMinimalUpgradeableProxyOZ();
+        address initialProxy = DETERMINISTIC_PROXY_FACTORY.deploy({
+            implementation: MINIMAL_PROXY_OZ_ADDRESS,
+            salt: initialProxySalt,
+            callData: abi.encodeCall(MinimalUpgradeableProxyOZ.initialize, (initialOwner)),
+            immutableArgs: ""
+        });
+        MinimalUpgradeableProxyOZ(initialProxy).upgradeToAndCall(implementation, callData);
+        return initialProxy;
+    }
+
+    function deterministicProxySolady(
+        bytes32 initialProxySalt,
+        address initialOwner,
+        address implementation,
+        bytes memory callData
+    ) internal returns (address) {
+        setUpDeterministicProxyFactory();
+        MinimalUpgradeableProxySoladyFixture.setUpMinimalUpgradeableProxySolady();
+        address initialProxy = DETERMINISTIC_PROXY_FACTORY.deploy({
+            implementation: MINIMAL_PROXY_SOLADY_ADDRESS,
+            salt: initialProxySalt,
+            callData: abi.encodeCall(MinimalUpgradeableProxySolady.initialize, (initialOwner)),
+            immutableArgs: ""
+        });
+        MinimalUpgradeableProxySolady(initialProxy).upgradeToAndCall(implementation, callData);
+        return initialProxy;
     }
 
 }
