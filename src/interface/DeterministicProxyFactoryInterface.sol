@@ -5,7 +5,6 @@ interface DeterministicProxyFactoryInterface {
 
     error InvalidDeployer();
     error ProxyCallFailed();
-    error ProxyDeploymentFailed();
 
     function clone(
         address implementation,
