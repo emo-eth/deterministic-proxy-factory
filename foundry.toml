@@ -7,7 +7,7 @@ bytecode_hash = "none"
 remappings = [
     "forge-std/=dependencies/forge-std-1.9.6/src/",
     "solady/=dependencies/solady-0.1.12/src/",
-    "create2-helpers/=dependencies/create2-helpers-0.4.0/src/",
+    "create2-helpers/=dependencies/create2-helpers-0.5.0/src/",
     "@openzeppelin-contracts/=dependencies/@openzeppelin-contracts-5.2.0/src/",
     "@openzeppelin-contracts-upgradeable/=dependencies/@openzeppelin-contracts-upgradeable-5.2.0/",
     "@openzeppelin/contracts/=dependencies/@openzeppelin-contracts-5.2.0/",
@@ -34,7 +34,7 @@ multline_func_header = "all"
 [dependencies]
 forge-std = "1.9.6"
 solady = "0.1.12"
-create2-helpers = "0.4.0"
+create2-helpers = "0.5.0"
 "@openzeppelin-contracts" = "5.2.0"
 "@openzeppelin-contracts-upgradeable" = "5.2.0"
 

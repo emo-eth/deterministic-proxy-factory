@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import { BaseCreate2Script } from "create2-helpers/BaseCreate2Script.sol";
 import { Script, console2 } from "forge-std/Script.sol";
-import { console } from "forge-std/console.sol";
 import {
     MINIMAL_PROXY_OZ_ADDRESS,
     MINIMAL_PROXY_OZ_SALT,
@@ -19,16 +18,16 @@ import { MinimalUpgradeableProxySolady } from "src/MinimalUpgradeableProxySolady
 contract Deploy is BaseCreate2Script {
 
     function run() public {
-        console.log("ProxyFactory initcode hash:");
-        console.logBytes32(
+        console2.log("ProxyFactory initcode hash:");
+        console2.logBytes32(
             keccak256(abi.encodePacked(type(DeterministicProxyFactory).creationCode))
         );
-        console.log("MinimalUpgradeableProxySolady initcode hash:");
-        console.logBytes32(
+        console2.log("MinimalUpgradeableProxySolady initcode hash:");
+        console2.logBytes32(
             keccak256(abi.encodePacked(type(MinimalUpgradeableProxySolady).creationCode))
         );
-        console.log("MinimalUpgradeableProxyOZ initcode hash:");
-        console.logBytes32(
+        console2.log("MinimalUpgradeableProxyOZ initcode hash:");
+        console2.logBytes32(
             keccak256(abi.encodePacked(type(MinimalUpgradeableProxyOZ).creationCode))
         );
 
@@ -37,13 +36,15 @@ contract Deploy is BaseCreate2Script {
         for (uint256 i = 0; i < networks.length; i++) {
             rpcUrls[i] = getChain(networks[i]).rpcUrl;
         }
-        runOnNetworks(this._run, rpcUrls);
+        runOnNetworks(_run, rpcUrls);
     }
 
-    function _run() public {
+    function _run() internal {
+        console2.log("Deploying DeterministicProxyFactory");
         address proxyFactoryAddr = _create2IfNotDeployed(
             deployer, PROXY_FACTORY_SALT, type(DeterministicProxyFactory).creationCode
         );
+        console2.log("Deployed DeterministicProxyFactory to address:", proxyFactoryAddr);
         require(
             proxyFactoryAddr == PROXY_FACTORY_ADDRESS,
             "Deployed DeterministicProxyFactory to wrong address"

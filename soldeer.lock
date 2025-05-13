@@ -14,10 +14,10 @@ integrity = "498747bedc3f757976da0b6125d26a63e79bb2b4dbabd8ecd2547e809a2fa27e"
 
 [[dependencies]]
 name = "create2-helpers"
-version = "0.4.0"
-url = "https://soldeer-revisions.s3.amazonaws.com/create2-helpers/0_4_0_22-03-2025_01:31:56_create2-helpers.zip"
-checksum = "2693981e7f6ce53687f5b2bda8d63e6523d2b47427cfe746552a8848f6c20163"
-integrity = "3991c62c03ff7933891a99b2b5305eb86b73cba83c0acd88c120bd6ae75f741b"
+version = "0.5.0"
+url = "https://soldeer-revisions.s3.amazonaws.com/create2-helpers/0_5_0_13-05-2025_17:05:02_create2-helpers.zip"
+checksum = "2e68e7866282a2801318145d610ea6f8bc64f5a591e1b57a27dd7d49b7adad65"
+integrity = "a18fe8aa906f2840378580388d61d032095410791ce6dff1f9a86754a6755d44"
 
 [[dependencies]]
 name = "forge-std"
