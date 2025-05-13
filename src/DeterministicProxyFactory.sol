@@ -17,8 +17,6 @@ contract DeterministicProxyFactory {
 
     /// @notice Reverts if the caller is not encoded into the top 160 bits of the salt.
     error InvalidDeployer();
-    /// @notice Reverts if the proxy deployment fails.
-    error ProxyDeploymentFailed();
     /// @notice Reverts if the call to the proxy after deployment fails.
     error ProxyCallFailed();
 
