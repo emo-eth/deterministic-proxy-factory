@@ -154,7 +154,7 @@ contract MyContractTest is Test {
 
 ### Has this been audited?
 
-Not yet :)
+Yes, by [Zenith](https://www.zenith.security/). See the report [here](audits/Deterministic%20Proxy%20Factory%20-%20Zenith%20Audit%20Report.pdf).
 
 ### When should I use immutable args vs initialization data?
 
