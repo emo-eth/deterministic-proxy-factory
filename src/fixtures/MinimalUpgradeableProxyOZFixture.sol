@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import { MINIMAL_PROXY_OZ_ADDRESS, MINIMAL_PROXY_OZ_SALT } from "src/Constants.sol";
-import { MinimalUpgradeableProxyOZ } from "src/MinimalUpgradeableProxyOZ.sol";
+import { MINIMAL_PROXY_OZ_ADDRESS, MINIMAL_PROXY_OZ_SALT } from "../Constants.sol";
+import { MinimalUpgradeableProxyOZ } from "../MinimalUpgradeableProxyOZ.sol";
 
 /**
  * @title MinimalUpgradeableProxyOZFixture

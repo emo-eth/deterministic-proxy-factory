@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import { MINIMAL_PROXY_SOLADY_ADDRESS, MINIMAL_PROXY_SOLADY_SALT } from "src/Constants.sol";
+import { MINIMAL_PROXY_SOLADY_ADDRESS, MINIMAL_PROXY_SOLADY_SALT } from "../Constants.sol";
 
-import { MinimalUpgradeableProxySolady } from "src/MinimalUpgradeableProxySolady.sol";
+import { MinimalUpgradeableProxySolady } from "../MinimalUpgradeableProxySolady.sol";
 
 /**
  * @title MinimalUpgradeableProxySoladyFixture

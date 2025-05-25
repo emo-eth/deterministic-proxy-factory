@@ -6,16 +6,16 @@ import {
     MINIMAL_PROXY_SOLADY_ADDRESS,
     PROXY_FACTORY_ADDRESS,
     PROXY_FACTORY_SALT
-} from "src/Constants.sol";
-import { DeterministicProxyFactory } from "src/DeterministicProxyFactory.sol";
+} from "../Constants.sol";
+import { DeterministicProxyFactory } from "../DeterministicProxyFactory.sol";
 import {
     MinimalUpgradeableProxyOZ,
     MinimalUpgradeableProxyOZFixture
-} from "src/fixtures/MinimalUpgradeableProxyOZFixture.sol";
+} from "./MinimalUpgradeableProxyOZFixture.sol";
 import {
     MinimalUpgradeableProxySolady,
     MinimalUpgradeableProxySoladyFixture
-} from "src/fixtures/MinimalUpgradeableProxySoladyFixture.sol";
+} from "./MinimalUpgradeableProxySoladyFixture.sol";
 
 /**
  * @title DeterministicProxyFactoryFixture
