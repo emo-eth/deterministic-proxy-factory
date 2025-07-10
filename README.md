@@ -37,11 +37,11 @@ address constant MINIMAL_PROXY_OZ_ADDRESS = 0x0000000000c110c7599c63EAE0C95e17b4
 Install with `forge soldeer install` or `forge install`
 
 ```
-forge soldeer install deterministic-proxy-factory~0.1.3
+forge soldeer install deterministic-proxy-factory~0.1.4
 
 # or
 
-forge install emo-eth/deterministic-proxy-factory@v0.1.3
+forge install emo-eth/deterministic-proxy-factory@v0.1.4
 ```
 
 ## Usage
@@ -181,7 +181,3 @@ It does not support initialization calls.
 ### Why not wrap a call to the ImmutableCreate2Factory in another contract that makes an initialization call?
 
 Solady's LibClone library has painstakingly optimized proxy/clone/beacon proxy bytecode, which gets loaded into memory as part of the deployment process. Rather than try to tweak the logic so it works with external calls, it's easier, safer, and more gas efficient to just have the factory deploy the proxies in addition to call their initialization methods. This approach saves gas by avoiding an extra external call and maintains the optimized bytecode patterns.
-
-```
-
-```
