@@ -99,7 +99,7 @@ contract FixturesTest is Test {
         proxy = DeterministicProxyFactoryFixture.deterministicProxyUUPS({
             initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(0)),
             implementation: impl,
-            callData: abi.encodeCall(UpgradeTest.initialize, ())
+            upgradeCallData: abi.encodeCall(UpgradeTest.initialize, ())
         });
         assertEq(UpgradeTest(proxy).isUpgraded(), true);
     }
