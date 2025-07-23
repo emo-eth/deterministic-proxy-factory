@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import { UUPSUpgradeable } from "solady/utils/UUPSUpgradeable.sol";
 
 /**
- * @title  MinimalUUPSUpgradeableUnsafeInitialUpgrade
+ * @title  MinimalUpgradeableProxyUnsafe
  * @author emo.eth
  * @notice A minimal UUPSUpgradeable implementation using Solady's UUPSUpgradeable.
  *         WARNING: This contract implements no initializers or ownable interface.
@@ -12,7 +12,7 @@ import { UUPSUpgradeable } from "solady/utils/UUPSUpgradeable.sol";
  *         atomically. The upgrade process should initialize the contract and override the
  *         _authorizeUpgrade function to be permissioned.
  */
-contract MinimalUUPSUpgradeableUnsafeInitialUpgrade is UUPSUpgradeable {
+contract MinimalUUPSUpgradeable is UUPSUpgradeable {
 
     constructor() {
         // no initializers to disable

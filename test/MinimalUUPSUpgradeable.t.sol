@@ -4,11 +4,10 @@ pragma solidity ^0.8.20;
 import { Test } from "forge-std/Test.sol";
 
 import { LibClone } from "solady/utils/LibClone.sol";
-import { MinimalUUPSUpgradeableUnsafeInitialUpgrade } from
-    "src/MinimalUUPSUpgradeableUnsafeInitialUpgrade.sol";
+import { MinimalUUPSUpgradeable } from "src/MinimalUUPSUpgradeable.sol";
 
 // Mock implementation for testing
-contract MockUpgradeableUnsafe is MinimalUUPSUpgradeableUnsafeInitialUpgrade {
+contract MockUpgradeableUnsafe is MinimalUUPSUpgradeable {
 
     uint256 public counter;
 
@@ -28,13 +27,12 @@ contract MinimalUUPSUpgradeableUnsafeInitialUpgradeTest is Test {
     address proxy;
 
     function setUp() public {
-        implementation = address(new MinimalUUPSUpgradeableUnsafeInitialUpgrade());
+        implementation = address(new MinimalUUPSUpgradeable());
     }
 
     function test_implementationCannotBeUpgraded() public {
         // Deploy the implementation contract directly (not as a proxy)
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade impl =
-            new MinimalUUPSUpgradeableUnsafeInitialUpgrade();
+        MinimalUUPSUpgradeable impl = new MinimalUUPSUpgradeable();
 
         // Try to call upgradeToAndCall on the implementation directly
         // This should fail because the implementation is not a proxy
@@ -44,15 +42,12 @@ contract MinimalUUPSUpgradeableUnsafeInitialUpgradeTest is Test {
         // The call should revert because the implementation contract itself is not a proxy
         // and doesn't have the proxy storage layout
         vm.expectRevert();
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade(address(impl)).upgradeToAndCall(
-            newImplementation, data
-        );
+        MinimalUUPSUpgradeable(address(impl)).upgradeToAndCall(newImplementation, data);
     }
 
     function test_implementationCannotBeUpgradedWithData() public {
         // Deploy the implementation contract directly (not as a proxy)
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade impl =
-            new MinimalUUPSUpgradeableUnsafeInitialUpgrade();
+        MinimalUUPSUpgradeable impl = new MinimalUUPSUpgradeable();
 
         // Try to call upgradeToAndCall with some data
         address newImplementation = address(0x123);
@@ -60,15 +55,12 @@ contract MinimalUUPSUpgradeableUnsafeInitialUpgradeTest is Test {
 
         // The call should revert because the implementation contract itself is not a proxy
         vm.expectRevert();
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade(address(impl)).upgradeToAndCall(
-            newImplementation, data
-        );
+        MinimalUUPSUpgradeable(address(impl)).upgradeToAndCall(newImplementation, data);
     }
 
     function test_implementationCannotBeUpgradedByAnyone() public {
         // Deploy the implementation contract directly (not as a proxy)
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade impl =
-            new MinimalUUPSUpgradeableUnsafeInitialUpgrade();
+        MinimalUUPSUpgradeable impl = new MinimalUUPSUpgradeable();
 
         // Try to call upgradeToAndCall from a different address
         address attacker = address(0x456);
@@ -78,15 +70,12 @@ contract MinimalUUPSUpgradeableUnsafeInitialUpgradeTest is Test {
         vm.prank(attacker);
         // The call should revert because the implementation contract itself is not a proxy
         vm.expectRevert();
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade(address(impl)).upgradeToAndCall(
-            newImplementation, data
-        );
+        MinimalUUPSUpgradeable(address(impl)).upgradeToAndCall(newImplementation, data);
     }
 
     function test_proxiableUUIDReturnsCorrectSlot() public {
         // Deploy the implementation contract directly
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade impl =
-            new MinimalUUPSUpgradeableUnsafeInitialUpgrade();
+        MinimalUUPSUpgradeable impl = new MinimalUUPSUpgradeable();
 
         // The proxiableUUID should return the ERC1967 implementation slot
         bytes32 expectedSlot = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
@@ -98,7 +87,7 @@ contract MinimalUUPSUpgradeableUnsafeInitialUpgradeTest is Test {
         proxy = LibClone.deployERC1967(address(implementation));
 
         // Create a new implementation to upgrade to
-        address newImplementation = address(new MinimalUUPSUpgradeableUnsafeInitialUpgrade());
+        address newImplementation = address(new MinimalUUPSUpgradeable());
         bytes memory data = "";
 
         // Anyone should be able to upgrade the proxy since _authorizeUpgrade is empty
@@ -106,7 +95,7 @@ contract MinimalUUPSUpgradeableUnsafeInitialUpgradeTest is Test {
         vm.prank(randomUser);
 
         // This should succeed because the proxy can be upgraded by anyone
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade(proxy).upgradeToAndCall(newImplementation, data);
+        MinimalUUPSUpgradeable(proxy).upgradeToAndCall(newImplementation, data);
     }
 
     function test_proxyCanBeUpgradedByAnyoneWithData() public {
@@ -122,7 +111,7 @@ contract MinimalUUPSUpgradeableUnsafeInitialUpgradeTest is Test {
         vm.prank(randomUser);
 
         // This should succeed because the proxy can be upgraded by anyone
-        MinimalUUPSUpgradeableUnsafeInitialUpgrade(proxy).upgradeToAndCall(newImplementation, data);
+        MinimalUUPSUpgradeable(proxy).upgradeToAndCall(newImplementation, data);
 
         // Verify the function was called
         assertEq(MockUpgradeableUnsafe(proxy).counter(), 1);
