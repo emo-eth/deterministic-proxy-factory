@@ -1,6 +1,6 @@
 # Deterministic Proxy Factory
 
-A factory for deploying deterministic ERC1967 proxies, beacon proxies, and clones (ERC-1167 minimal proxies) with permissioned deployment and consistent addresses across EVM chains.
+A factory for deploying deterministic UUPS upgradeable proxies with permissioned deployment and consistent addresses across EVM chains.
 
 ## Table of Contents
 
@@ -14,14 +14,14 @@ A factory for deploying deterministic ERC1967 proxies, beacon proxies, and clone
 
 ## Overview
 
-This factory allows you to deploy proxies deterministically by specifying a consistent initial implementation across chains. Proxies can then be upgraded to any implementation while keeping the same address. Since initialization calls are often sensitive, salts must encode the deployer's address, making deployment permissioned but still consistent across chains.
+This factory allows you to deploy UUPS upgradeable proxies deterministically by specifying a consistent initial implementation across chains. Proxies can then be upgraded to any implementation while keeping the same address. Since initialization calls are often sensitive, salts must encode the deployer's address, making deployment permissioned but still consistent across chains.
 
-For convenience, "minimal" proxy implementations are provided using both Solady and OpenZeppelin templates with [upgrade-safe storage](https://eips.ethereum.org/EIPS/eip-7201), as well as a bare-bones minimum-viable UUPSUpgradeable implementation which includes no authorization mechanisms before being upgraded.
+For convenience, a bare-bones minimum-viable UUPSUpgradeable implementation is provided which includes no authorization mechanisms before being upgraded.
 
 ## Features
 
--   Deterministic deployment of ERC1967 proxies, beacon proxies, and clones
--   Support for immutable args in all proxy types
+-   Deterministic deployment of UUPS upgradeable proxies
+-   Support for immutable args in proxy deployments
 -   Permission control via deployer address encoded in salt
 -   Consistent addresses across all EVM chains
 
@@ -33,19 +33,17 @@ Both factories use the [`CREATE2` opcode](https://www.evm.codes/?fork=cancun#f5)
 
 The `ProxyFactory` uses the `ImmutableCreate2Factory` strategy of encoding the deployer's address into the salt, which allows for permissioned deploys while still being deterministic. The `ProxyFactory` also accepts optional calldata for an initialization call, which is passed to the proxy after deployment to its deterministic address.
 
-Support for [ClonesWithImmutableArgs](https://github.com/wighawag/clones-with-immutable-args)-style "immutable arguments" is also included, but they are not forwarded to the implementation contract by default. Instead, they are appended to the bytecode of the proxy, but not as calldata to every call to the proxy implementation. See OpenZeppelin's [Clones.sol](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/7b74442c5e87ea51dde41c7f18a209fa5154f1a4/contracts/proxy/Clones.sol#L229) and/or Solady's [LibClone.sol](https://github.com/Vectorized/solady/blob/99711d64e956f777983e08176764e5f77264a2a3/src/utils/LibClone.sol#L653) library for more details.
+Support for [ClonesWithImmutableArgs](https://github.com/wighawag/clones-with-immutable-args)-style "immutable arguments" is also included, but they are not forwarded to the implementation contract by default. Instead, they are appended to the bytecode of the proxy, but not as calldata to every call to the proxy implementation.
 
 ## Deployed Contracts
 
-The factory and minimal proxy implementations are deployed at the following addresses:
+The factory and minimal UUPS proxy implementation are deployed at the following addresses:
 
 ```solidity
 // Proxy Factory
 address constant PROXY_FACTORY_ADDRESS = 0x000000000028301FcDF54db25F5D5C586378D100;
 
-// Minimal Proxy Implementations
-address constant MINIMAL_PROXY_SOLADY_ADDRESS = 0x0000000000354D21D30F6CfECDF569b9fd796ADa;
-address constant MINIMAL_PROXY_OZ_ADDRESS = 0x0000000000c110c7599c63EAE0C95e17b41CBb9B;
+// Minimal UUPS Proxy Implementation
 address constant MINIMAL_UUPS_UPGRADEABLE_ADDRESS = 0x00000000002afD12deE0AddF2812248d20AF28C9;
 ```
 
@@ -53,16 +51,22 @@ address constant MINIMAL_UUPS_UPGRADEABLE_ADDRESS = 0x00000000002afD12deE0AddF28
 
 ```solidity
 import { DeterministicProxyFactory } from "deterministic-proxy-factory/DeterministicProxyFactory.sol";
-import { MinimalUpgradeableProxySolady } from "deterministic-proxy-factory/MinimalUpgradeableProxySolady.sol";
+import { MinimalUUPSUpgradeable } from "deterministic-proxy-factory/MinimalUUPSUpgradeable.sol";
 import { PermissionedSalt } from "deterministic-proxy-factory/PermissionedSalt.sol";
 
-// Deploy a proxy with minimal Solady implementation
+// Deploy a UUPS proxy with initialization
 DeterministicProxyFactory factory = DeterministicProxyFactory(0x000000000028301FcDF54db25F5D5C586378D100);
-address initialImplementation = 0x0000000000354D21D30F6CfECDF569b9fd796ADa; // Solady implementation
+address uupsImplementation = 0x00000000002afD12deE0AddF2812248d20AF28C9;
+address targetImplementation = address(new MyContract());
 
 bytes32 salt = PermissionedSalt.createPermissionedSalt(msg.sender, 1);
-bytes memory initData = abi.encodeCall(MinimalUpgradeableProxySolady.initialize, (msg.sender));
-address proxy = factory.deploy(initialImplementation, salt, initData, "");
+bytes memory upgradeCallData = abi.encodeCall(MyContract.initialize, (msg.sender));
+address proxy = factory.deploy({
+    implementation: uupsImplementation,
+    salt: salt,
+    callData: abi.encodeCall(MinimalUUPSUpgradeable.upgradeToAndCall, (targetImplementation, upgradeCallData)),
+    immutableArgs: ""
+});
 ```
 
 ## Installation
@@ -70,22 +74,24 @@ address proxy = factory.deploy(initialImplementation, salt, initData, "");
 Install with `forge soldeer install` or `forge install`
 
 ```
-forge soldeer install deterministic-proxy-factory~0.1.6
+forge soldeer install deterministic-proxy-factory~0.2.0
 
 # or
 
-forge install emo-eth/deterministic-proxy-factory@v0.1.6
+forge install emo-eth/deterministic-proxy-factory@v0.2.0
 ```
 
 ## Usage
 
-### Basic Proxy Deployment
+### UUPS Proxy Deployment
+
+UUPS proxies are deployed with the minimal UUPS implementation and immediately upgraded to your target implementation during deployment.
 
 ```solidity
 // reference the deployed proxy factory
-ProxyFactory factory = DeterministicProxyFactory(0x000000000028301FcDF54db25F5D5C586378D100);
-// reference the minimal proxy implementation
-address implementation = 0x0000000000354D21D30F6CfECDF569b9fd796ADa; // Solady implementation
+DeterministicProxyFactory factory = DeterministicProxyFactory(0x000000000028301FcDF54db25F5D5C586378D100);
+// reference the minimal UUPS proxy implementation
+address uupsImplementation = 0x00000000002afD12deE0AddF2812248d20AF28C9;
 
 // To derive a salt, encode the deployer's address into the top 160 bits of the salt, followed by 96 bits of "actual" salt.
 address deployer = msg.sender;
@@ -95,31 +101,7 @@ bytes32 salt = bytes32((uint256(uint160(deployer)) << 96) | uint96(actualSalt));
 // or using the PermissionedSalt library
 bytes32 sameSalt = PermissionedSalt.createPermissionedSalt(deployer, actualSalt);
 
-bytes memory initData = abi.encodeWithSignature("initialize(address)", msg.sender);
-// Deploy a proxy (with optional immutable args)
-bytes memory immutableArgs = ""; // If empty, deploys a normal proxy
-address proxy = factory.deploy(implementation, salt, initData, immutableArgs);
-
-// Deploy a clone (ERC-1167 minimal proxy)
-address clone = factory.clone(implementation, salt, initData, immutableArgs);
-
-// Deploy a beacon proxy
-address beacon = 0x...; // your beacon contract address
-address beaconProxy = factory.deployBeaconProxy(beacon, salt, initData, immutableArgs);
-
-// Get the initcode hash for various proxies
-bytes32 proxyInitcodeHash = factory.getInitcodeHashForProxy(implementation, immutableArgs);
-bytes32 cloneInitcodeHash = factory.getInitcodeHashForClone(implementation, immutableArgs);
-bytes32 beaconProxyInitcodeHash = factory.getInitcodeHashForBeaconProxy(beacon, immutableArgs);
-```
-
-### UUPS Proxy Deployment
-
-UUPS proxies work differently from other proxy types. They are deployed with the minimal UUPS implementation and immediately upgraded to your target implementation during deployment.
-
-```solidity
-// Deploy a UUPS proxy with initialization
-address uupsImplementation = 0x00000000002afD12deE0AddF2812248d20AF28C9;
+// Deploy your target implementation
 address targetImplementation = address(new MyContract());
 
 // The callData must be nested: upgradeToAndCall(implementation, initializationData)
@@ -127,9 +109,12 @@ bytes memory upgradeCallData = abi.encodeCall(MyContract.initialize, (owner, par
 address uupsProxy = factory.deploy({
     implementation: uupsImplementation,
     salt: salt,
-    callData: abi.encodeCall(UUPSUpgradeable.upgradeToAndCall, (targetImplementation, upgradeCallData)),
+    callData: abi.encodeCall(MinimalUUPSUpgradeable.upgradeToAndCall, (targetImplementation, upgradeCallData)),
     immutableArgs: ""
 });
+
+// Get the initcode hash for UUPS proxies
+bytes32 uupsProxyInitcodeHash = factory.getInitcodeHashForProxy(uupsImplementation, immutableArgs);
 ```
 
 **Key points for UUPS proxies:**
@@ -141,7 +126,7 @@ address uupsProxy = factory.deploy({
 
 ## Testing
 
-The library includes a set of fixtures for setting up the factory in your test environment.
+The library includes a fixture for setting up the factory in your test environment.
 
 ```solidity
 /// SPDX-License-Identifier: MIT
@@ -152,14 +137,6 @@ import {
     DeterministicProxyFactory,
     DeterministicProxyFactoryFixture
 } from "deterministic-proxy-factory/fixtures/DeterministicProxyFactoryFixture.sol";
-import {
-    MinimalUpgradeableProxyOZ,
-    MinimalUpgradeableProxyOZFixture
-} from "deterministic-proxy-factory/fixtures/MinimalUpgradeableProxyOZFixture.sol";
-import {
-    MinimalUpgradeableProxySolady,
-    MinimalUpgradeableProxySoladyFixture
-} from "deterministic-proxy-factory/fixtures/MinimalUpgradeableProxySoladyFixture.sol";
 import {
     MinimalUUPSUpgradeable,
     MinimalUUPSUpgradeableFixture
@@ -172,39 +149,14 @@ contract MyContractTest is Test {
     MyContract myContract;
 
     function setUp() public {
-        // Deploy factory and minimal proxy implementations to their deterministic addresses
+        // Deploy factory and minimal UUPS proxy implementation to their deterministic addresses
         factory = DeterministicProxyFactory(
             DeterministicProxyFactoryFixture.setUpDeterministicProxyFactory()
         );
-        address minimalProxyOZ = MinimalUpgradeableProxyOZFixture.setUpMinimalUpgradeableProxyOZ();
-        address minimalProxySolady =
-            MinimalUpgradeableProxySoladyFixture.setUpMinimalUpgradeableProxySolady();
         address minimalUUPSUpgradeable = MinimalUUPSUpgradeableFixture.setUpMinimalUUPSUpgradeable();
 
         // Deploy your implementation contract
         MyContract myContractImplementation = new MyContract();
-        myContract = MyContract(
-            DeterministicProxyFactoryFixture.deterministicProxyOZ({
-                initialProxySalt: PermissionedSalt.createPermissionedSalt(
-                    address(this), uint96(vm.envOr("SALT", uint256(0)))
-                ),
-                initialOwner: address(this),
-                implementation: address(myContractImplementation),
-                callData: abi.encodeCall(MyContract.reinitialize, (address(this)))
-            })
-        );
-
-        // Deploy using Solady implementation
-        myContract = MyContract(
-            DeterministicProxyFactoryFixture.deterministicProxySolady({
-                initialProxySalt: PermissionedSalt.createPermissionedSalt(
-                    address(this), uint96(vm.envOr("SALT", uint256(0)))
-                ),
-                initialOwner: address(this),
-                implementation: address(myContractImplementation),
-                callData: abi.encodeCall(MyContract.reinitialize, (address(this)))
-            })
-        );
 
         // Deploy using UUPS implementation (note the nested encoding pattern)
         myContract = MyContract(
