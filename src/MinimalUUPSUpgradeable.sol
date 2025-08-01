@@ -20,8 +20,8 @@ contract MinimalUUPSUpgradeable is UUPSUpgradeable {
 
     /**
      * @notice WARNING: The upgrade is not gated to owner; it must be deployed **and upgraded**
-     * atomically; the upgrade process must initialize the contract and override this function to be
-     * permissioned.
+     * atomically. The upgrade process should initialize the contract and override this function to
+     * be permissioned.
      */
     function _authorizeUpgrade(address newImplementation) internal override { }
 

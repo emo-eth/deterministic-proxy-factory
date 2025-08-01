@@ -21,6 +21,14 @@ library PermissionedSalt {
         return bytes32(uint256(uint160(_deployer)) << DEPLOYER_SHIFT | _salt);
     }
 
+    function create(address _deployer, uint96 salt)
+        internal
+        pure
+        returns (bytes32 permissionedSalt)
+    {
+        return createPermissionedSalt(_deployer, salt);
+    }
+
     /**
      * @notice Unwraps the deployer address from an PermissionedSalt.
      */

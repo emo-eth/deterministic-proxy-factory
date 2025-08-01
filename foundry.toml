@@ -16,9 +16,9 @@ remappings = [
 optimizer_runs = 9999999
 via_ir = true
 solc_version = "0.8.29"
-
-[profile.london]
+# maximize compatibility for evm-equivalent chains that are a few hardforks behind
 evm_version = "london"
+
 
 [rpc_endpoints]
 mainnet = "${ETHEREUM_RPC_URL}"

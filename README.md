@@ -24,6 +24,7 @@ For convenience, a bare-bones minimum-viable UUPSUpgradeable implementation is p
 -   Support for immutable args in proxy deployments
 -   Permission control via deployer address encoded in salt
 -   Consistent addresses across all EVM chains
+-   Minimal UUPS implementation for immediate upgrade to target implementation
 
 ## Rationale
 
@@ -41,10 +42,10 @@ The factory and minimal UUPS proxy implementation are deployed at the following 
 
 ```solidity
 // Proxy Factory
-address constant PROXY_FACTORY_ADDRESS = 0x000000000028301FcDF54db25F5D5C586378D100;
+address constant PROXY_FACTORY_ADDRESS = 0x000000000011Bc780f30CB1A21030b332c981e84;
 
 // Minimal UUPS Proxy Implementation
-address constant MINIMAL_UUPS_UPGRADEABLE_ADDRESS = 0x00000000002afD12deE0AddF2812248d20AF28C9;
+address constant MINIMAL_UUPS_UPGRADEABLE_ADDRESS = 0x00000000003cc991111C0f2e88135b04D5F945FE;
 ```
 
 ## Quick Start
@@ -55,8 +56,8 @@ import { MinimalUUPSUpgradeable } from "deterministic-proxy-factory/MinimalUUPSU
 import { PermissionedSalt } from "deterministic-proxy-factory/PermissionedSalt.sol";
 
 // Deploy a UUPS proxy with initialization
-DeterministicProxyFactory factory = DeterministicProxyFactory(0x000000000028301FcDF54db25F5D5C586378D100);
-address uupsImplementation = 0x00000000002afD12deE0AddF2812248d20AF28C9;
+DeterministicProxyFactory factory = DeterministicProxyFactory(0x000000000011Bc780f30CB1A21030b332c981e84);
+address uupsImplementation = 0x00000000003cc991111C0f2e88135b04D5F945FE;
 address targetImplementation = address(new MyContract());
 
 bytes32 salt = PermissionedSalt.createPermissionedSalt(msg.sender, 1);
@@ -74,11 +75,11 @@ address proxy = factory.deploy({
 Install with `forge soldeer install` or `forge install`
 
 ```
-forge soldeer install deterministic-proxy-factory~0.2.0
+forge soldeer install deterministic-proxy-factory~0.3.0
 
 # or
 
-forge install emo-eth/deterministic-proxy-factory@v0.2.0
+forge install emo-eth/deterministic-proxy-factory@v0.3.0
 ```
 
 ## Usage
@@ -89,9 +90,9 @@ UUPS proxies are deployed with the minimal UUPS implementation and immediately u
 
 ```solidity
 // reference the deployed proxy factory
-DeterministicProxyFactory factory = DeterministicProxyFactory(0x000000000028301FcDF54db25F5D5C586378D100);
+DeterministicProxyFactory factory = DeterministicProxyFactory(0x000000000011Bc780f30CB1A21030b332c981e84);
 // reference the minimal UUPS proxy implementation
-address uupsImplementation = 0x00000000002afD12deE0AddF2812248d20AF28C9;
+address uupsImplementation = 0x00000000003cc991111C0f2e88135b04D5F945FE;
 
 // To derive a salt, encode the deployer's address into the top 160 bits of the salt, followed by 96 bits of "actual" salt.
 address deployer = msg.sender;

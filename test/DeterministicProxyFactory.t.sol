@@ -6,17 +6,12 @@ import { Test, console2 } from "forge-std/Test.sol";
 import { VmSafe } from "forge-std/Vm.sol";
 import { LibClone } from "solady/utils/LibClone.sol";
 import { DETERMINISTIC_PROXY_FACTORY_ADDRESS } from "src/Constants.sol";
-import { MINIMAL_PROXY_OZ_ADDRESS } from "src/Constants.sol";
-import { MINIMAL_PROXY_SOLADY_ADDRESS } from "src/Constants.sol";
 import { MINIMAL_UUPS_UPGRADEABLE_ADDRESS } from "src/Constants.sol";
 import { DeterministicProxyFactory } from "src/DeterministicProxyFactory.sol";
 
 import { PermissionedSalt } from "src/PermissionedSalt.sol";
 import { DeterministicProxyFactoryFixture } from "src/fixtures/DeterministicProxyFactoryFixture.sol";
 import { MinimalUUPSUpgradeableFixture } from "src/fixtures/MinimalUUPSUpgradeableFixture.sol";
-import { MinimalUpgradeableProxyOZFixture } from "src/fixtures/MinimalUpgradeableProxyOZFixture.sol";
-import { MinimalUpgradeableProxySoladyFixture } from
-    "src/fixtures/MinimalUpgradeableProxySoladyFixture.sol";
 
 // Simple implementation contract for testing
 contract MockImplementation {
@@ -654,26 +649,8 @@ contract DeterministicProxyFactoryTest is Test {
     function test_deterministicProxyMethods() public {
         address impl = address(new UpgradeTest());
 
-        // Test Solady proxy
-        address proxy = DeterministicProxyFactoryFixture.deterministicProxySolady({
-            initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(0)),
-            initialOwner: address(this),
-            implementation: impl,
-            callData: ""
-        });
-        assertEq(UpgradeTest(proxy).isUpgraded(), true);
-
-        // Test OZ proxy
-        proxy = DeterministicProxyFactoryFixture.deterministicProxyOZ({
-            initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(1)),
-            initialOwner: address(this),
-            implementation: impl,
-            callData: ""
-        });
-        assertEq(UpgradeTest(proxy).isUpgraded(), true);
-
         // Test UUPS proxy
-        proxy = DeterministicProxyFactoryFixture.deterministicProxyUUPS({
+        address proxy = DeterministicProxyFactoryFixture.deterministicProxyUUPS({
             initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(2)),
             implementation: impl,
             upgradeCallData: abi.encodeCall(UpgradeTest.initialize, ())
@@ -684,28 +661,8 @@ contract DeterministicProxyFactoryTest is Test {
     function test_deterministicProxyMethodsWithInitialization() public {
         address impl = address(new UpgradeTest());
 
-        // Test Solady proxy with initialization
-        address proxy = DeterministicProxyFactoryFixture.deterministicProxySolady({
-            initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(3)),
-            initialOwner: address(this),
-            implementation: impl,
-            callData: abi.encodeCall(UpgradeTest.initialize, ())
-        });
-        assertEq(UpgradeTest(proxy).isUpgraded(), true);
-        assertTrue(UpgradeTest(proxy).initialized(), "Proxy should be initialized");
-
-        // Test OZ proxy with initialization
-        proxy = DeterministicProxyFactoryFixture.deterministicProxyOZ({
-            initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(4)),
-            initialOwner: address(this),
-            implementation: impl,
-            callData: abi.encodeCall(UpgradeTest.initialize, ())
-        });
-        assertEq(UpgradeTest(proxy).isUpgraded(), true);
-        assertTrue(UpgradeTest(proxy).initialized(), "Proxy should be initialized");
-
         // Test UUPS proxy with initialization
-        proxy = DeterministicProxyFactoryFixture.deterministicProxyUUPS({
+        address proxy = DeterministicProxyFactoryFixture.deterministicProxyUUPS({
             initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(5)),
             implementation: impl,
             upgradeCallData: abi.encodeCall(UpgradeTest.initialize, ())
@@ -718,18 +675,16 @@ contract DeterministicProxyFactoryTest is Test {
         address impl = address(new UpgradeTest());
 
         // Test that different salts produce different proxy addresses
-        address proxy1 = DeterministicProxyFactoryFixture.deterministicProxySolady({
+        address proxy1 = DeterministicProxyFactoryFixture.deterministicProxyUUPS({
             initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(0)),
-            initialOwner: address(this),
             implementation: impl,
-            callData: ""
+            upgradeCallData: abi.encodeCall(UpgradeTest.initialize, ())
         });
 
-        address proxy2 = DeterministicProxyFactoryFixture.deterministicProxySolady({
+        address proxy2 = DeterministicProxyFactoryFixture.deterministicProxyUUPS({
             initialProxySalt: PermissionedSalt.createPermissionedSalt(address(this), uint96(1)),
-            initialOwner: address(this),
             implementation: impl,
-            callData: ""
+            upgradeCallData: abi.encodeCall(UpgradeTest.initialize, ())
         });
 
         assertTrue(proxy1 != proxy2, "Different salts should produce different addresses");
