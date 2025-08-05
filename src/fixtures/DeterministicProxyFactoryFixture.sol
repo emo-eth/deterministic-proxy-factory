@@ -65,7 +65,6 @@ library DeterministicProxyFactoryFixture {
         bytes memory upgradeCallData
     ) internal returns (address) {
         setUpDeterministicProxyFactory();
-        require(upgradeCallData.length > 0, CallDataRequired());
         MinimalUUPSUpgradeableFixture.setUpMinimalUUPSUpgradeable();
         address initialProxy = DETERMINISTIC_PROXY_FACTORY.deploy({
             implementation: MINIMAL_UUPS_UPGRADEABLE_ADDRESS,
